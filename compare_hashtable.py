@@ -25,15 +25,19 @@ def compute_hash ( filepath ):
     return md.digest()
     
 # Check command line parameters
-if len ( sys.argv ) < 2 or sys.argv[1] == '-h':
-    sys.exit ( 'Usage: {0} directory_name'.format ( sys.argv[0] ))
+if len ( sys.argv ) < 3 or sys.argv[1] == '-h':
+    sys.exit ( 'Usage: {0} pickle_file_name directory_name'.format ( sys.argv[0] ))
 
 if not os.path.exists ( sys.argv[1] ):
-    sys.exit ( 'ERROR: Directory `{0}` not found!'.format ( sys.argv[1] ))
+    sys.exit ( 'ERROR: Pickle file `{0}` not found!'.format ( sys.argv[1] ))
+
+if not os.path.exists ( sys.argv[2] ):
+    sys.exit ( 'ERROR: Directory `{0}` not found!'.format ( sys.argv[2] ))
 
 print "Loading hashtable data ..."
-f = open ( 'probrat.pkl', 'rb' )
+f = open ( sys.argv[1], 'rb' )
 listtable = pickle.load ( f )
+print listtable[8]
 f.close()
 
 print "Constructing hashtable and file path info ..."
@@ -42,10 +46,12 @@ origpaths = {}
 for filesize in listtable.keys() :
     hashes = defaultdict(list)
     files  = defaultdict(list)
-    for fullpath,filehash in listtable[filesize] :
+    filedata = listtable[filesize]
+    for fullpath in filedata.keys() :
         # There might be the same files with different file names
         # (usually .svn or TeX support files or different versions of
         # figures and texts)
+        filehash = filedata[fullpath][1]
         filepath, filename = os.path.split ( fullpath )
         hashes[filehash].append ( filename )
         files[filehash].append ( fullpath )
@@ -58,7 +64,7 @@ for filesize in listtable.keys() :
 # rootdir = 'D:\\Honza\\iFolder'
 # rootdir = 'D:\\K611'
 
-rootdir = sys.argv[1]
+rootdir = sys.argv[2]
 
 hashtable_keys = hashtable.keys()
 
